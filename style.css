@@ -1,0 +1,15 @@
+.pokemon {
+    display: inline-block;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 10px;
+    margin: 5px;
+    width: 150px;
+    text-align: center;
+    background: #f9f9f9;
+}
+
+img {
+    width: 80px;
+    height: 80px;
+}
