@@ -7,11 +7,12 @@
     <title>Pokedex</title>
     <link rel="stylesheet" href="styles/standart.css">
     <link rel="stylesheet" href="style.css">
-     <script src="scripts/template.js" defer></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet">
+    <script src="scripts/template.js" defer></script>
     <script src="script.js" defer></script>
 </head>
 
-<body>
+<body onload="fetchPokemonApi(currentGen)">
     <h1>Pokedex</h1>
     <div id="content"></div>
     <button onclick="loadNextGen()">Load More</button>
