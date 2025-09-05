@@ -13,6 +13,21 @@
 </head>
 
 <body onload="fetchPokemonApi(currentGen)">
+    <dialog>
+        <header>National Dex</header> <!--verändert sich mit dem scrollen-->
+        <main>
+            <h2></h2> <!--Name des Pokemons-->
+            <div>
+                <img src="" alt=""> <!--Sprite-->
+                <div></div> <!--Evochain-->
+                <article></article> <!--Stats-->
+            </div>
+            <div> <!--list of pkm + scrollbar-->
+
+            </div>
+        </main>
+        <footer></footer>
+    </dialog>
     <h1>Pokedex</h1>
     <div id="content"></div>
     <button onclick="loadNextGen()">Load More</button>

@@ -27,7 +27,6 @@ h1 {
 
 /* Einzelne Pokémon-Karte */
 .pokemon {
-    background: #f44336;
     border: 3px solid #fff;
     border-radius: 15px;
     box-shadow: 0 0 10px #000;
