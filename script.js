@@ -1,4 +1,3 @@
-
 let Pokedex = [];
 let currentGen = 1;
 
@@ -35,7 +34,6 @@ const typeColors = {
     normal: '#a8a899'
 };
 
-
 let typeTranslations = {
     normal: "Normal",
     fire: "Feuer",
@@ -59,33 +57,36 @@ let typeTranslations = {
 
 async function fetchPokemonApi(gen) {
     let { start, end } = generations[gen];
+    let promises = [];
 
     for (let i = start; i <= end; i++) {
-        let response = await fetch(`https://pokeapi.co/api/v2/pokemon/${i}`);// Basisdaten (Sprite, Typen etc.)
-        let pokemon = await response.json();
-        let speciesResponse = await fetch(`https://pokeapi.co/api/v2/pokemon-species/${i}`);// Species-Daten (für deutsche Namen)
-        let species = await speciesResponse.json();
-        let germanNameObj = species.names.find(nameIndex => nameIndex.language.name === "de"); // Deutschen Namen heraussuchen
-        let germanName;
-        if (germanNameObj) {
-            germanName = germanNameObj.name;
-        } else {
-            germanName = pokemon.name;
-        }
-        let germanTypes = pokemon.types.map(typeIndex => typeTranslations[typeIndex.type.name] || typeIndex.type.name).join(", ");
+        promises.push(fetchSinglePokemon(i));
+    }
+
+    let results = await Promise.all(promises);
+
+    for (let { pokemon, germanName, germanTypes, i } of results) {
         Pokedex.push({ pokemon, germanName, germanTypes });
         document.getElementById("content").innerHTML += pokemonTemplateGerman(pokemon, germanName, germanTypes, i);
         pokemonBgTypeColor(i, germanTypes);
     }
 }
 
-function loadNextGen() {
-    currentGen++;
-    if (generations[currentGen]) {
-        fetchPokemonApi(currentGen);
-    } else {
-        alert("Keine weiteren Generationen verfügbar!");
-    }
+async function fetchSinglePokemon(i) {
+    let response = await fetch(`https://pokeapi.co/api/v2/pokemon/${i}`);
+    let pokemon = await response.json();
+
+    let speciesResponse = await fetch(`https://pokeapi.co/api/v2/pokemon-species/${i}`);
+    let species = await speciesResponse.json();
+
+    let germanNameObj = species.names.find(nameIndex => nameIndex.language.name === "de");
+    let germanName = germanNameObj ? germanNameObj.name : pokemon.name;
+
+    let germanTypes = pokemon.types
+        .map(typeIndex => typeTranslations[typeIndex.type.name] || typeIndex.type.name)
+        .join(", ");
+
+    return { pokemon, germanName, germanTypes, i };
 }
 
 function pokemonBgTypeColor(i, germanTypes) {
@@ -108,9 +109,15 @@ function pokemonBgTypeColor(i, germanTypes) {
         }
     } else {
         color2 = color1;
-
     }
-    let gradient = "linear-gradient(180deg, " + color1 + ", " + color2 + ")";
+    document.getElementById(`pkm_bg${i}`).style.background = "linear-gradient(180deg, " + color1 + ", " + color2 + ")";
+}
 
-    document.getElementById(`pkm_bg${i}`).style.background = gradient;
+function loadNextGen() {
+    currentGen++;
+    if (generations[currentGen]) {
+        fetchPokemonApi(currentGen);
+    } else {
+        alert("Keine weiteren Generationen verfügbar!");
+    }
 }
