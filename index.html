@@ -14,7 +14,7 @@
     <script src="script.js" defer></script>
 </head>
 
-<body onload="fetchPokemonApi(currentGen)">
+<body onload="init()">
     <div class="container">
         <dialog id="pokemonDialog">
             <header id="dialogHeader">National Dex</header>
@@ -35,7 +35,6 @@
             </main>
             <footer>
                 <button onclick="closeDialog()">Schließen</button>
-                <button id="loadMoreBtn" onclick="loadNextGen()">Nächste Generation</button>
             </footer>
         </dialog>
         <header class="main_header">

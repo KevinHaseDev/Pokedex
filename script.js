@@ -56,6 +56,11 @@ let typeTranslations = {
     fairy: "Fee"
 };
 
+function init() {
+  fetchPokemonApi(currentGen);
+  searchPokemon()
+}
+
 async function fetchPokemonGeneration(gen) {
     let { start, end } = generations[gen];
     let promises = [];
@@ -126,12 +131,6 @@ function renderSearchResults(results) {
         pokemonBgTypeColor(i, results[i].germanTypes);
     }
 }
-
-window.onload = () => {
-  fetchPokemonApi(currentGen);
-  searchPokemon()
-};
-
 
 async function fetchSinglePokemon(i) {
     let response = await fetch(`https://pokeapi.co/api/v2/pokemon/${i}`);
