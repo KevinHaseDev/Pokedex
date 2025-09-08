@@ -1,6 +1,7 @@
 let Pokedex = [];
 let currentGen = 1;
 let statsChart = null;
+let currentPokemonIndex = 0;
 
 let generations = {
     1: { start: 1, end: 151 },
@@ -57,8 +58,8 @@ let typeTranslations = {
 };
 
 function init() {
-  fetchPokemonApi(currentGen);
-  searchPokemon()
+    fetchPokemonApi(currentGen);
+    searchPokemon()
 }
 
 async function fetchPokemonGeneration(gen) {
@@ -120,17 +121,39 @@ function handleSearch(query) {
     renderSearchResults(filtered);
 }
 
-function filterPokemon(query) {
-    return Pokedex.filter(p => p.germanName.toLowerCase().includes(query.toLowerCase()));
+function filterPokemon(suchbegriff) {
+    return Pokedex
+        .map((pokemonObjekt, originalIndex) => {
+            return {
+                ...pokemonObjekt,
+                originalIndex: originalIndex
+            };
+        })
+        .filter(pokemonObjekt =>
+            pokemonObjekt.germanName
+                .toLowerCase()
+                .includes(suchbegriff.toLowerCase())
+        );
 }
+
 
 function renderSearchResults(results) {
     let myDiv = document.getElementById("content");
-    myDiv.innerHTML = results.map((p, id) => pokemonTemplateGerman(p.pokemon, p.germanName, p.germanTypes, id, id)).join("");
+    myDiv.innerHTML = results.map(pokemonObjekt => {
+        return pokemonTemplateGerman(
+            pokemonObjekt.pokemon,
+            pokemonObjekt.germanName,
+            pokemonObjekt.germanTypes,
+            pokemonObjekt.originalIndex,
+            pokemonObjekt.originalIndex
+        );
+    }).join("");
+
     for (let i = 0; i < results.length; i++) {
-        pokemonBgTypeColor(i, results[i].germanTypes);
+        pokemonBgTypeColor(results[i].originalIndex, results[i].germanTypes);
     }
 }
+
 
 async function fetchSinglePokemon(i) {
     let response = await fetch(`https://pokeapi.co/api/v2/pokemon/${i}`);
@@ -216,7 +239,7 @@ function renderPokemonStatsChart(labels, data) {
         options: {
             indexAxis: "y",
             responsive: true,
-            maintainAspectRatio: false,
+            maintainAspectRatio: true,
             scales: {
                 x: { beginAtZero: true },
                 y: { ticks: { autoSkip: false } }
@@ -233,6 +256,7 @@ function renderPokemonList() {
         .join("");
 }
 function openDialog(pokemonIndex) {
+    currentPokemonIndex = pokemonIndex;
     let pkm = Pokedex[pokemonIndex];
     if (!pkm) return;
 
@@ -253,4 +277,22 @@ function showPokemonDialog() {
 
 function closeDialog() {
     document.getElementById("pokemonDialog").close();
+}
+
+function showPrevPokemon() {
+    if (currentPokemonIndex === 0) {
+        currentPokemonIndex = Pokedex.length - 1
+    } else {
+        currentPokemonIndex = currentPokemonIndex - 1
+    }
+    openDialog(currentPokemonIndex);
+}
+
+function showNextPokemon() {
+    if (currentPokemonIndex === Pokedex.length - 1) {
+        currentPokemonIndex = 0
+    } else {
+        currentPokemonIndex = currentPokemonIndex + 1
+    }
+    openDialog(currentPokemonIndex);
 }
