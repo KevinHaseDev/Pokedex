@@ -1,4 +1,3 @@
-
 /* Grundlayout */
 body {
     background: linear-gradient(90deg, #5e5e5e, #000000);
@@ -15,6 +14,23 @@ h1 {
     margin-top: 20px;
     text-shadow: 2px 2px #000;
     letter-spacing: 2px;
+}
+
+.main_header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 20px;
+}
+
+.header_img {
+    width: 80px;
+}
+
+#searchInput {
+    width: 200px;
+    height: 40px;
+    border-radius: 10px;
 }
 
 /* Pokémon-Container */
@@ -82,4 +98,164 @@ button {
 
 button:hover {
     background-color: #fdd835;
+}
+
+/*Dialog-Styling*/
+dialog {
+    width: 100%;
+    height: 100%;
+    border: none;
+    border-radius: 10px;
+    padding: 0;
+    color: rgb(12, 6, 6);
+}
+
+dialog::backdrop {
+    background: rgba(0, 0, 0, 0.6);
+}
+
+#dialogHeader {
+    background: linear-gradient(360deg, rgb(252, 252, 252), #990101);
+    padding: 20px;
+    font-size: 1.5em;
+    text-align: center;
+}
+
+.pokeName {
+    text-align: center;
+    margin-bottom: 20px;
+    border: 1px solid black;
+    border-radius: 10px;
+    width: 400px;
+    background: linear-gradient(360deg, rgb(252, 252, 252), #990101);
+}
+
+.pokeImg {
+    height: 300px;
+    aspect-ratio: 1/1;
+    background-image: url(./assets/img/pokeball.png);
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 300px;
+}
+
+#pokemonDialog {
+    background-image: url(./assets/img/pokemon_background_two.jpg);
+    overflow-y: hidden;
+}
+
+.chart-container {
+    width: 800px;
+    height: 280px;
+    position: relative;
+}
+
+#pokemonStats {
+    width: 100%;
+    height: 100%;
+}
+
+.pokemon-details {
+    display: flex;
+    height: 80%;
+}
+
+.left-panel {
+    flex: 2;
+    padding: 20px;
+    border: 1px solid black;
+    border-radius: 10px;
+    margin-left: 10px;
+    margin-right: 5px;
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #e3c2b3;
+}
+
+.right-panel {
+    border: 1px solid black;
+    border-radius: 10px;
+    flex: 1;
+    height: 700px;
+    border-left: 2px solid #555;
+    overflow-y: scroll;
+    margin-left: 5px;
+    margin-right: 10px;
+    margin-top: 20px;
+    background-color: #e3c2b3;
+    ;
+}
+
+.pokeListName {
+    border: 1px solid black;
+    margin: 8px 5px;
+    background: linear-gradient(180deg, rgb(165, 165, 165), rgb(235, 235, 235));
+    border-radius: 10px;
+    transition: 0.02s ease-in;
+}
+
+.pokeListName:hover {
+    scale: 0.8;
+}
+
+.scroll-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.scroll-list div {
+    padding: 8px;
+    cursor: pointer;
+}
+
+.scroll-list div:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* Vollbild-Overlay */
+.overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+/* Spinner */
+.spinner {
+    width: 60px;
+    height: 60px;
+    border: 6px solid #f3f3f3;
+    border-top: 6px solid #3498db;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.container {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+@media(max-width: 630px){
+    .header_img{
+        display: none;
+    }
+    .main_header{
+        flex-direction: column;
+    }
 }

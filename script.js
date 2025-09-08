@@ -1,5 +1,6 @@
 let Pokedex = [];
 let currentGen = 1;
+let statsChart = null;
 
 let generations = {
     1: { start: 1, end: 151 },
@@ -55,7 +56,7 @@ let typeTranslations = {
     fairy: "Fee"
 };
 
-async function fetchPokemonApi(gen) {
+async function fetchPokemonGeneration(gen) {
     let { start, end } = generations[gen];
     let promises = [];
 
@@ -63,61 +64,194 @@ async function fetchPokemonApi(gen) {
         promises.push(fetchSinglePokemon(i));
     }
 
-    let results = await Promise.all(promises);
+    return Promise.all(promises);
+}
 
-    for (let { pokemon, germanName, germanTypes, i } of results) {
-        Pokedex.push({ pokemon, germanName, germanTypes });
-        document.getElementById("content").innerHTML += pokemonTemplateGerman(pokemon, germanName, germanTypes, i);
-        pokemonBgTypeColor(i, germanTypes);
+function showLoading() {
+    document.getElementById("loadingOverlay").style.display = "flex";
+    document.getElementById("loadMoreBtn").disabled = true;
+}
+
+function hideLoading() {
+    document.getElementById("loadingOverlay").style.display = "none";
+    document.getElementById("loadMoreBtn").disabled = false;
+}
+
+async function fetchPokemonApi(gen) {
+    showLoading();
+    let results = await fetchPokemonGeneration(gen);
+
+    for (let index = 0; index < results.length; index++) {
+        let pokemonData = results[index];
+        let pokeId = addPokemonToPokedex(pokemonData);
+        renderPokemon(pokemonData.pokemon, pokemonData.germanName, pokemonData.germanTypes, pokemonData.i, pokeId);
+        applyPokemonBgColor(pokemonData.i, pokemonData.germanTypes);
+    }
+    hideLoading()
+}
+
+function addPokemonToPokedex(pokemonData) {
+    let { pokemon, germanName, germanTypes } = pokemonData;
+    Pokedex.push({ pokemon, germanName, germanTypes });
+    return Pokedex.length - 1;
+}
+
+function renderPokemon(pokemon, germanName, germanTypes, i, pokeId) {
+    document.getElementById("content").innerHTML +=
+        pokemonTemplateGerman(pokemon, germanName, germanTypes, i, pokeId);
+}
+
+function applyPokemonBgColor(i, germanTypes) {
+    pokemonBgTypeColor(i, germanTypes);
+}
+
+function searchPokemon() {
+    let input = document.getElementById("searchInput");
+    input.addEventListener("keyup", () => handleSearch(input.value));
+}
+
+function handleSearch(query) {
+    let filtered = filterPokemon(query);
+    renderSearchResults(filtered);
+}
+
+function filterPokemon(query) {
+    return Pokedex.filter(p => p.germanName.toLowerCase().includes(query.toLowerCase()));
+}
+
+function renderSearchResults(results) {
+    let myDiv = document.getElementById("content");
+    myDiv.innerHTML = results.map((p, id) => pokemonTemplateGerman(p.pokemon, p.germanName, p.germanTypes, id, id)).join("");
+    for (let i = 0; i < results.length; i++) {
+        pokemonBgTypeColor(i, results[i].germanTypes);
     }
 }
+
+window.onload = () => {
+  fetchPokemonApi(currentGen);
+  searchPokemon()
+};
+
 
 async function fetchSinglePokemon(i) {
     let response = await fetch(`https://pokeapi.co/api/v2/pokemon/${i}`);
     let pokemon = await response.json();
-
     let speciesResponse = await fetch(`https://pokeapi.co/api/v2/pokemon-species/${i}`);
     let species = await speciesResponse.json();
-
     let germanNameObj = species.names.find(nameIndex => nameIndex.language.name === "de");
     let germanName = germanNameObj ? germanNameObj.name : pokemon.name;
-
     let germanTypes = pokemon.types
         .map(typeIndex => typeTranslations[typeIndex.type.name] || typeIndex.type.name)
         .join(", ");
-
     return { pokemon, germanName, germanTypes, i };
 }
 
 function pokemonBgTypeColor(i, germanTypes) {
-    let typesArray = germanTypes.split(","); // Zerlege den String mit den Typen an jedem Komma
-    for (let pkm_i = 0; pkm_i < typesArray.length; pkm_i++) {
-        typesArray[pkm_i] = typesArray[pkm_i].trim().toLowerCase();// Entferne Leerzeichen und wandle in Kleinbuchstaben um
-    }
-    let color1; // Bestimme die erste Farbe
-    if (typeColors[typesArray[0]]) {
-        color1 = typeColors[typesArray[0]];
-    } else {
-        color1 = "#fafafaff"; // Standardfarbe
-    }
-    let color2;// Bestimme die zweite Farbe
-    if (typesArray.length > 1) {
-        if (typeColors[typesArray[1]]) {
-            color2 = typeColors[typesArray[1]];
-        } else {
-            color2 = color1;
-        }
-    } else {
-        color2 = color1;
-    }
-    document.getElementById(`pkm_bg${i}`).style.background = "linear-gradient(180deg, " + color1 + ", " + color2 + ")";
+    let typesArray = parseTypes(germanTypes);
+    let [color1, color2] = getGradientColors(typesArray);
+    setPokemonBackground(i, color1, color2);
 }
+
+function parseTypes(germanTypes) {
+    return germanTypes
+        .split(",")
+        .map(type => type.trim().toLowerCase());
+}
+
+function getTypeColor(type) {
+    return typeColors[type] || "#fafafaff";
+}
+
+function getGradientColors(typesArray) {
+    let color1 = getTypeColor(typesArray[0]);
+    let color2 = typesArray.length > 1 ? getTypeColor(typesArray[1]) : color1;
+    return [color1, color2];
+}
+
+function setPokemonBackground(i, color1, color2) {
+    document.getElementById(`pkm_bg${i}`).style.background =
+        `linear-gradient(180deg, ${color1}, ${color2})`;
+}
+
 
 function loadNextGen() {
     currentGen++;
     if (generations[currentGen]) {
         fetchPokemonApi(currentGen);
+        renderPokemonList();
     } else {
         alert("Keine weiteren Generationen verfügbar!");
     }
+}
+
+function setPokemonDetails(pkm) {
+    document.getElementById("pokemonName").textContent = pkm.germanName;
+    document.getElementById("pokemonSprite").src = pkm.pokemon.sprites.front_default;
+}
+
+function getPokemonStatsData(pkm) {
+    return {
+        labels: pkm.pokemon.stats.map(s => s.stat.name.toUpperCase()),
+        data: pkm.pokemon.stats.map(s => s.base_stat)
+    };
+}
+
+function renderPokemonStatsChart(labels, data) {
+    const canvas = document.getElementById("pokemonStats");
+    const ctx = canvas.getContext("2d");
+
+    if (statsChart) statsChart.destroy();
+
+    statsChart = new Chart(ctx, {
+        type: "bar",
+        data: {
+            labels: labels,
+            datasets: [{
+                label: "Basis-Stats",
+                data: data,
+                backgroundColor: "rgba(54,162,235,0.5)",
+                borderColor: "rgba(54,162,235,1)",
+                borderWidth: 1
+            }]
+        },
+        options: {
+            indexAxis: "y",
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: { beginAtZero: true },
+                y: { ticks: { autoSkip: false } }
+            },
+            plugins: { legend: { display: false } }
+        }
+    });
+}
+
+function renderPokemonList() {
+    let listContainer = document.getElementById("pokemonList");
+    listContainer.innerHTML = Pokedex
+        .map((p, id) => `<div class="pokeListName" onclick="openDialog(${id})">${p.germanName}</div>`)
+        .join("");
+}
+function openDialog(pokemonIndex) {
+    let pkm = Pokedex[pokemonIndex];
+    if (!pkm) return;
+
+    setPokemonDetails(pkm);
+
+    let { labels, data } = getPokemonStatsData(pkm);
+    renderPokemonStatsChart(labels, data);
+    renderPokemonList();
+    showPokemonDialog();
+}
+window.openDialog = openDialog;
+
+function showPokemonDialog() {
+    let dlg = document.getElementById("pokemonDialog");
+    if (dlg.showModal) dlg.showModal();
+    else dlg.setAttribute("open", "");
+}
+
+function closeDialog() {
+    document.getElementById("pokemonDialog").close();
 }

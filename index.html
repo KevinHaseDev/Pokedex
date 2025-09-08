@@ -5,32 +5,52 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pokedex</title>
+    <link rel="shortcut icon" href="assets/img/pokeball.png" type="image/x-icon">
     <link rel="stylesheet" href="styles/standart.css">
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.min.js"></script>
     <script src="scripts/template.js" defer></script>
     <script src="script.js" defer></script>
 </head>
 
 <body onload="fetchPokemonApi(currentGen)">
-    <dialog>
-        <header>National Dex</header> <!--verändert sich mit dem scrollen-->
+    <div class="container">
+        <dialog id="pokemonDialog">
+            <header id="dialogHeader">National Dex</header>
+            <main>
+                <div class="pokemon-details">
+                    <div class="left-panel">
+                        <h2 class="pokeName" id="pokemonName"></h2>
+                        <img class="pokeImg" id="pokemonSprite" src="" alt="">
+                        <div id="evoChain"></div>
+                        <div class="chart-container">
+                            <canvas id="pokemonStats"></canvas>
+                        </div>
+                    </div>
+                    <div class="right-panel">
+                        <div id="pokemonList" class="scroll-list"></div>
+                    </div>
+                </div>
+            </main>
+            <footer>
+                <button onclick="closeDialog()">Schließen</button>
+                <button id="loadMoreBtn" onclick="loadNextGen()">Nächste Generation</button>
+            </footer>
+        </dialog>
+        <header class="main_header">
+            <img class="header_img" src="./assets/img/pokeball.png" alt="pokeball image">
+            <h1>Pokedex</h1>
+            <input type="text" id="searchInput" minlength="3" placeholder="Mindestens 3 Zeichen eingeben...">
+        </header>
         <main>
-            <h2></h2> <!--Name des Pokemons-->
-            <div>
-                <img src="" alt=""> <!--Sprite-->
-                <div></div> <!--Evochain-->
-                <article></article> <!--Stats-->
-            </div>
-            <div> <!--list of pkm + scrollbar-->
-
+            <div id="content"></div>
+            <button id="loadMoreBtn" onclick="loadNextGen()">Nächste Generation</button>
+            <div id="loadingOverlay" class="overlay" style="display:none;">
+                <div class="spinner"></div>
             </div>
         </main>
-        <footer></footer>
-    </dialog>
-    <h1>Pokedex</h1>
-    <div id="content"></div>
-    <button onclick="loadNextGen()">Load More</button>
+    </div>
 </body>
 
 </html>

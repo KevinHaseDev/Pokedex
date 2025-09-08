@@ -11,3 +11,7 @@ a{
 .d_none{
     display: none;
 }
+
+button:hover{
+scale: 1.2;
+}
