@@ -212,8 +212,17 @@ function setPokemonDetails(pkm) {
 }
 
 function getPokemonStatsData(pkm) {
+    const statMap = {
+        "hp": "HP",
+        "attack": "ATK",
+        "defense": "DEF",
+        "special-attack": "SP.ATK",
+        "special-defense": "SP.DEF",
+        "speed": "INIT"
+    };
+
     return {
-        labels: pkm.pokemon.stats.map(s => s.stat.name.toUpperCase()),
+        labels: pkm.pokemon.stats.map(s => statMap[s.stat.name] || s.stat.name.toUpperCase()),
         data: pkm.pokemon.stats.map(s => s.base_stat)
     };
 }

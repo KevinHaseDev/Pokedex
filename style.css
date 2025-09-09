@@ -141,6 +141,8 @@ dialog::backdrop {
 
 #pokemonDialog {
     background-image: url(./assets/img/pokemon_background_two.jpg);
+    background-repeat: no-repeat;
+    background-size: cover;
     overflow-y: hidden;
     height: 100vh;
 }
